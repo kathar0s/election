@@ -1,0 +1,211 @@
+body {
+  font-family: "Nanum Gothic";
+}
+.middle-header {
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.3s ease-in-out;
+  padding: 15px 0;
+}
+.middle-header h1,
+.middle-header h2 {
+  margin: 0;
+}
+.middle-header .logo img {
+  width: 48px;
+  vertical-align: top;
+  display: block;
+  float: left;
+  margin-right: 10px;
+}
+.middle-header .logo h1 {
+  font-weight: bold;
+  font-size: 26px;
+}
+.middle-header .logo small {
+  display: block;
+  line-height: 24px;
+}
+.middle-header .navbar-right {
+  text-align: right;
+  margin-top: 5px;
+}
+.middle-header .election-info {
+  margin: 0;
+}
+.middle-header .election-info .date {
+  float: right;
+  margin: 4px 0 0 10px;
+  text-align: left;
+}
+.middle-header .election-info .d-day {
+  float: right;
+  font-size: 43px;
+}
+.navbar-default .navbar-toggle {
+  float: left;
+  margin-left: 15px;
+}
+.navbar .select-agency {
+  float: right;
+  padding: 8px;
+}
+.navbar-collapse .select-agency {
+  padding: 8px 15px 8px 0;
+}
+section .title {
+  margin-top: 0;
+}
+.balance-of-power {
+  margin-top: 2rem;
+}
+.balance-of-power .text {
+  position: relative;
+  margin: 2rem 8.5rem 0;
+}
+.balance-of-power .text .candidate {
+  top: 0rem;
+  line-height: 1;
+}
+.balance-of-power .text .candidate .name {
+  vertical-align: bottom;
+  font-size: 1.7rem;
+  line-height: 1.7;
+  font-weight: 700;
+}
+.balance-of-power .text .candidate .percent {
+  line-height: 1.1;
+  font-size: 3.5rem;
+  color: #404040;
+  vertical-align: top;
+  white-space: nowrap;
+  font-weight: 700;
+}
+.balance-of-power .text .candidate-left {
+  position: relative;
+}
+.balance-of-power .text .candidate-right {
+  position: absolute;
+  right: 0;
+}
+.balance-of-power .visual {
+  position: relative;
+}
+.balance-of-power .visual .progress {
+  margin: 5px 40px;
+}
+.balance-of-power .visual .candidate .photo {
+  position: absolute;
+  bottom: -2px;
+  width: 80px;
+  height: 80px;
+  background: #999;
+  border-radius: 40px;
+  border: 3px solid #FFF;
+}
+.balance-of-power .visual .candidate .photo.headshot-left {
+  left: 0;
+}
+.balance-of-power .visual .candidate .photo.headshot-right {
+  right: 0;
+}
+.balance-of-power .visual .candidate .photo .label-default {
+  background: #000;
+}
+.balance-of-power .visual .progress-bar {
+  transition: all .6s ease;
+}
+.balance-of-power .candidate-info {
+  margin: 0 0.5rem;
+  position: relative;
+}
+.balance-of-power .candidate-info .party-number {
+  bottom: 0;
+}
+.balance-of-power .candidate-info .party-number.left {
+  position: relative;
+  left: 0;
+}
+.balance-of-power .candidate-info .party-number.right {
+  position: absolute;
+  right: 0;
+}
+.balance-of-power .candidate-info .party-number .party {
+  font-weight: 700;
+}
+.balance-of-power .candidate-info .party-number .number {
+  color: #a6a6a6;
+}
+.rest-balance {
+  margin-top: 2rem;
+}
+.rest-balance .candidate {
+  font-size: 1.5rem;
+}
+.rest-balance .candidate .photo {
+  background: #999;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+}
+.rest-balance .candidate .name {
+  font-weight: 700;
+}
+.rest-balance .candidate .order {
+  font-size: 1.5rem;
+}
+.rest-balance .candidate .party {
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+.rest-balance .candidate .number {
+  font-size: 1.4rem;
+  color: #a6a6a6;
+}
+.rest-balance .table thead th {
+  font-size: 1.2rem;
+}
+.rest-balance .table tbody > tr > td {
+  padding: 20px 5px;
+}
+.rest-balance .rate-bar .progress {
+  margin: 1.5rem 0 0;
+}
+.rest-balance .rate-bar .limit {
+  font-size: 10px;
+}
+.rest-balance .rate {
+  margin-top: 1.4rem;
+}
+.candidate .photo {
+  background: #eeeeee url(http://imgnews.naver.net/image/upload/item/2017/04/11/231318113_66x80_no.png) no-repeat center 1.2rem !important;
+  background-size: 70% !important;
+}
+.survey-info {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #eee;
+  border-left-width: 5px;
+  border-radius: 3px;
+}
+.survey-info .info .press_name {
+  padding-right: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #909194;
+  line-height: 22px;
+  letter-spacing: -1px;
+  vertical-align: top;
+}
+.survey-info .info .grp_date {
+  font-size: 13px;
+  color: #888;
+  font-family: tahoma, helvetica, sans-serif;
+  line-height: 23px;
+  letter-spacing: 0;
+  vertical-align: top;
+}
+.survey-info p {
+  font-size: 12px;
+  line-height: 20px;
+  color: #888;
+}
