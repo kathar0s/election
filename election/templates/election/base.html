@@ -91,6 +91,9 @@
     </script>
     <script type="text/x-template" id="trend-template">
         <div class="trend" v-show="app.$refs.navbar.isTrend">
+            <select v-model="selectedTarget">
+                <option v-for="target in targets">[[ target ]]</option>
+            </select>
             <div id="chart-trend"></div>
             <div class="no-data" :class="{'hide': series.length }">
                 해당 데이터가 없습니다.
@@ -130,7 +133,7 @@
                     if (dayleft == 0) {
                         return '-day';
                     } else {
-                        return -dayleft;
+                        return (dayleft < 0) ? '+' + -dayleft : -dayleft;
                     }
                 }
             },
@@ -185,11 +188,7 @@
             },
             watch: {
                 selectedAgency: function (newVal) {
-                    if (newVal == '전체') {
-                        this.app.$refs.trend.getData();
-                    } else {
-                        this.app.$refs.trend.getData(newVal);
-                    }
+                    this.app.$refs.trend.getData(newVal);
                     this.app.$refs.navbar.isTrend = true;
                 }
             },
@@ -207,7 +206,17 @@
                 return {
                     categories: [],
                     series: [],
-                    chart: null
+                    chart: null,
+                    targets: [],
+                    selectedTarget: '서울'
+                }
+            },
+            watch: {
+                selectedTarget: function(newVal) {
+                    this.getData(this.app.$refs.navbar.selectedAgency);
+                    if (this.app.$refs.region) {
+                        this.app.$refs.region.target = newVal;
+                    }
                 }
             },
             methods: {
@@ -221,12 +230,20 @@
                     if (typeof agency != 'undefined') {
                         default_params['agency'] = agency;
                     }
-                    axios.get('/api/survey/trend', {
+                    axios.get('/api/survey/trend/', {
                         params: default_params
                     })
                     .then(function (response) {
+                        var results = response.data.results;
                         that.categories = response.data.categories;
-                        that.series = response.data.results;
+                        that.targets = _.sortBy(Object.keys(results));
+
+                        if (that.selectedTarget in results) {
+                            that.series = results[that.selectedTarget];
+                        } else {
+                            that.selectedTarget = that.targets[0];
+                            that.series = [];
+                        }
                         that.updateChart();
                     })
                     .catch(function (error) {
@@ -242,11 +259,11 @@
                             this.chart.series[0].remove(false);
                         }
 
-                        for (var i in this.categories) {
-                            newCategories.push(this.categories[i].split('/')[2].replace('17.', ''));
-                        }
+{#                        for (var i in this.categories) {#}
+{#                            newCategories.push(this.categories[i]);#}
+{#                        }#}
 
-                        this.chart.xAxis[0].setCategories(newCategories);
+                        this.chart.xAxis[0].setCategories(this.categories);
                         for (var i in this.series) {
 
                             data = this.series[i]['data'];
@@ -286,6 +303,10 @@
                                 style: {
                                     fontSize: 12,
                                     fontFamily: 'Nanum Gothic'
+                                },
+                                formatter: function () {
+                                    var label = this.axis.defaultLabelFormatter.call(this);
+                                    return label.split('/')[2].replace('17.', '');
                                 }
                             },
                             showLastLabel: true,
@@ -297,7 +318,7 @@
                         },
                         yAxis: {
                             min: 0,
-                            max: 60,
+                            max: 65,
                             gridLineColor: '#FFF',
                             title: {
                                 text: null
@@ -309,6 +330,7 @@
                         },
                         plotOptions: {
                             series: {
+                                connectNulls: true,
                                 marker: {
                                     enabled: false
                                 }
@@ -323,6 +345,10 @@
                         },
                         tooltip: {
                             enabled: true,
+{#                            formatter: function () {#}
+{#                                return this.y;#}
+{#                                debugger;#}
+{#                            },#}
                             valueSuffix: ' %'
                         },
                         legend: {

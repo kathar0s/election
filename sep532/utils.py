@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import hashlib
+from datetime import datetime
 import json
 import re
 import demjson
@@ -40,6 +40,7 @@ class BaseCrawler(object):
         f = urlopen(self.url)
         self.html = f.read()
         f.close()
+        return self.html
 
     def set_url(self, url):
         self.url = url
@@ -112,6 +113,75 @@ class DaumCrawler(BaseCrawler):
         return self.rating
 
 
+class ExitPollCrawler(BaseCrawler):
+    def __init__(self, *args, **kwargs):
+        # 지역별, 종합, 연령별, 성별
+        super(ExitPollCrawler, self).__init__(*args, **kwargs)
+
+    def get_json(self):
+        urls = {
+            '종합': 'ticker',
+            '지역별': 'sido',
+            '연령별': 'age',
+            '성별': 'gender'
+        }
+
+        # 다음에서는 Ajax통신을 통해 데이터를 가져오므로 카테고리별로 JSON을 가져온다.
+        for category in self.categories:
+            self.set_url('http://media.daum.net/election/vote/api/2017_0509/expect/{}.json'.format(urls[category]))
+            self.get_html()
+
+            json_data = json.loads(self.html.decode('utf-8'))
+
+            results = []
+            for target in json_data:
+                candidates = []
+                result = {}
+                for key, value in target.items():
+                    if key.startswith('n'):
+                        candidates.append({
+                            'name': value,
+                            'rate': target[key.replace('n', 'r')]
+                        })
+                result['name'] = target['gubun']
+                result['candidates'] = candidates
+                results.append(result)
+
+            self.rating[category] = results
+
+        return self.rating
+
+
+class FinalCrawler(BaseCrawler):
+    def __init__(self, *args, **kwargs):
+        # 지역별, 종합, 연령별, 성별
+        kwargs['url'] = "http://eapi.news.naver.net/api/multiple.jsonp?apis=p17voteopendistrict&dummy=1494406104034"
+        super(FinalCrawler, self).__init__(*args, **kwargs)
+
+    def get_json(self):
+
+        # 최종결과는 종합, 지역별만 나타난다.
+        html = self.get_html()
+        json_data = json.loads(html.decode('utf-8'))
+
+        data = json_data['message']['result']['p17voteopendistrict']
+
+        self.rating['종합'] = [{
+            'published': data['createDatetime'],
+            'voteCnt': data['voteCnt'],
+            'votePct': data['votePct'],
+            'candidateList': data['candidateList']
+        }]
+        self.rating['지역별'] = [{
+            'published': data['createDatetime'],
+            'voteCnt': data['voteCnt'],
+            'votePct': data['votePct'],
+            'districts': data['districtList'].values()
+        }]
+
+        return self.rating
+
+
 class Parser(object):
     crawler = None
     crawl_data = None
@@ -148,15 +218,6 @@ class Parser(object):
     def get_rates(data):
         pass
 
-    def get_moons_rate(self, data):
-        pass
-
-    @staticmethod
-    def get_unique(rate, agency, published):
-        return hashlib.md5('{}/{}/{}'.format(agency.name,
-                                             published.strftime('%y.%m.%d'),
-                                             rate).encode('utf-8')).hexdigest()
-
     @staticmethod
     def validation(data):
         pass
@@ -164,6 +225,10 @@ class Parser(object):
     @staticmethod
     def get_source():
         pass
+
+    @staticmethod
+    def get_survey_postfix():
+        return '여론조사'
 
     def parse_rates(self, data, survey):
         pass
@@ -185,6 +250,7 @@ class Parser(object):
                     agency = Agency.objects.get(Q(name__icontains=agency_name) | Q(aliases__icontains=agency_name))
                 except Agency.DoesNotExist:
                     agency = Agency.objects.create(name=agency_name)
+                    logger('{} 설문조사 기관이 추가되었습니다.'.format(agency_name))
                 except Agency.MultipleObjectsReturned:
                     logger('[오류] 설문조사 기관이 2개 이상 검색되었습니다!')
                     sys.exit(0)
@@ -195,6 +261,7 @@ class Parser(object):
                         office = Office.objects.get(Q(name__exact=office_name) | Q(alias__icontains=office_name))
                     except Office.DoesNotExist:
                         office = Office.objects.create(name=office_name)
+                        logger('{} 설문조사의뢰기관이 추가되었습니다.'.format(office_name))
                     except Office.MultipleObjectsReturned:
                         logger('[오류] 설문조사의뢰기관이 2개 이상 검색되었습니다!')
                         sys.exit(0)
@@ -206,7 +273,8 @@ class Parser(object):
                 # 2. 설문조사가 기존에 있는 내용인지, 새로 만들어야하는지 확인한다.
                 published = self.get_published(result)
                 survey_name = '/'.join(['-'.join(offices), agency.name])
-                survey_name = '[{}] {} 여론조사'.format(survey_name, published.strftime('%y.%m.%d'))
+                survey_name = '[{}] {} {}'.format(survey_name, published.strftime('%y.%m.%d'),
+                                                  self.get_survey_postfix())
                 description = self.get_description(result)
 
                 is_virtual = True if description.startswith('가상') or description.startswith('[가상') else False
@@ -345,14 +413,6 @@ class NaverParser(Parser):
     def get_link(data):
         return data['linkUrl']
 
-    def get_moons_rate(self, data):
-        categories = data['category'] if 'category' in data else [data]
-        for category in categories:
-            for option in category['candidateList']:
-                if self.candidate_info[option['id']]['name'] == '문재인':
-                    return option['rating']
-        return None
-
     def parse_save(self, *args, **kwargs):
         self.candidate_info = self.crawl_data['후보정보']
         del self.crawl_data['후보정보']
@@ -400,6 +460,166 @@ class NaverParser(Parser):
                         candidate_name = self.candidate_info[option['id']]['name']
                         candidate, is_created = Candidate.objects.get_or_create(name=candidate_name)
                         rate = 0 if option['rating'] == '' else option['rating']
+                        defaults = {
+                            'rate': rate,
+                        }
+                        if is_created:
+                            logger('{} 후보자 정보가 생성되었습니다.'.format(candidate.name))
+
+                        if survey.type == 'total' and target != '전국':
+                            target = '전국'
+
+                        rating, is_created = Rating.objects.update_or_create(
+                            candidate=candidate, target=target, type=survey.type, survey=survey, defaults=defaults)
+                        if is_created:
+                            logger('{} 후보자의 {} 지지율 {}%가 등록되었습니다.'.format(candidate.name, target, rate))
+
+
+class ExitPollParser(Parser):
+    def __init__(self, *args, **kwargs):
+        kwargs['crawler'] = ExitPollCrawler()
+        super(ExitPollParser, self).__init__(*args, **kwargs)
+
+    @staticmethod
+    def get_source():
+        return 'daum'
+
+    @staticmethod
+    def get_offices(data):
+        return ['지상파 3사']
+
+    @staticmethod
+    def get_agency(data):
+        return '지상파 3사'
+
+    @staticmethod
+    def get_survey_postfix():
+        return '출구조사'
+
+    @staticmethod
+    def get_published(data):
+        return datetime.strptime('2017-05-09', '%Y-%m-%d')
+
+    @staticmethod
+    def get_description(data):
+        return '전국 만 19세이상 남녀 {:,}명/330개 투표소/95% 신뢰수준에 오차 ±0.8%p'.format(89000)
+
+    @staticmethod
+    def get_link(data):
+        return 'http://media.daum.net/election/2017/0509/vote/expect/'
+
+    def parse_rates(self, data, survey):
+        categories = data['category'] if 'category' in data else [data]
+        for category in categories:
+
+            if 'name' not in category:
+                category['name'] = '전국'
+            category['name'] = category['name'].replace('전국~', '')
+
+            if '남자' in category['name']:
+                category['name'] = '남성'
+            if '여자' in category['name']:
+                category['name'] = '여성'
+
+            if survey.type == 'age':
+                age_range = int(category['name'].replace('이상', ''))
+                
+                if age_range == 60:
+                    category['name'] = '{}세이상'.format(age_range)
+                else:
+                    category['name'] = '{}대'.format(age_range)
+
+            targets = category['name'].split('/')
+
+            logger('{}에 대한 {} 지지율결과를 알아보고 있습니다.'.format(survey.name, category['name']))
+
+            for target in targets:
+                if survey.type == 'age' and age_range > 60:
+                    continue
+
+                target = re.sub('<[^>]*>|\s', '', target)
+
+                # 후보자별 지지율을 찾아서 업데이트한다.
+                for option in category['candidates']:
+
+                    # 후보자를 찾거나 생성한다.
+                    candidate_name = option['name']
+                    candidate, is_created = Candidate.objects.get_or_create(name=candidate_name)
+                    rate = 0 if option['rate'] == '' else option['rate']
+                    defaults = {
+                        'rate': rate,
+                    }
+                    if is_created:
+                        logger('{} 후보자 정보가 생성되었습니다.'.format(candidate.name))
+
+                    if survey.type == 'total' and target != '전국':
+                        target = '전국'
+
+                    rating, is_created = Rating.objects.update_or_create(
+                        candidate=candidate, target=target, type=survey.type, survey=survey, defaults=defaults)
+                    if is_created:
+                        logger('{} 후보자의 {} 지지율 {}%가 등록되었습니다.'.format(candidate.name, target, rate))
+
+
+class FinalParser(Parser):
+    def __init__(self, *args, **kwargs):
+        kwargs['crawler'] = FinalCrawler()
+        self.candidate_info = None
+
+        super(FinalParser, self).__init__(*args, **kwargs)
+
+    @staticmethod
+    def get_source():
+        return 'naver'
+
+    @staticmethod
+    def get_offices(data):
+        return ['중앙선관위']
+
+    @staticmethod
+    def get_agency(data):
+        return '중앙선관위'
+
+    @staticmethod
+    def get_survey_postfix():
+        return '선거결과'
+
+    @staticmethod
+    def get_published(data):
+        return datetime.fromtimestamp(int(data['published']) / 1000)
+
+    @staticmethod
+    def get_description(data):
+        return '전국 만 19세이상 남녀 {:,}명/투표율 {}%'.format(int(data['voteCnt']), data['votePct'])
+
+    @staticmethod
+    def get_link(data):
+        return 'http://news.naver.com/main/election/president2017/result/index.nhn'
+
+    def parse_rates(self, data, survey):
+        categories = data['districts'] if 'districts' in data else [data]
+        for category in categories:
+
+            if 'name' not in category:
+                category['name'] = '전국'
+            if 'districtName' in category:
+                category['name'] = category['districtName']
+
+            targets = category['name'].split('/')
+
+            logger('{}에 대한 {} 지지율결과를 알아보고 있습니다.'.format(survey.name, category['name']))
+
+            for target in targets:
+                target = re.sub('<[^>]*>|\s', '', target)
+
+                # 후보자별 지지율을 찾아서 업데이트한다.
+                for option in category['candidateList']:
+
+                    if option['id']:
+                        # 후보자를 찾거나 생성한다.
+                        candidate_name = option['name']
+                        candidate, is_created = Candidate.objects.get_or_create(name=candidate_name)
+                        rate = 0 if option['pointPct'] == '' else option['pointPct']
                         defaults = {
                             'rate': rate,
                         }

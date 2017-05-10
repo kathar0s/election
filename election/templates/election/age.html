@@ -3,12 +3,15 @@
 {% block content %}
     <section class="container">
         <h2 class="title">대선 지지율(연령별) <small>총 [[ count ]]개의 결과가 있습니다.</small></h2>
+        <trend-component ref="trend" :app="this"></trend-component>
         <div class="row">
             <div class="col-md-8 col-lg-9">
                 <survey-chart-component ref="chart" :app="this"></survey-chart-component>
             </div>
             <div class="col-md-4 col-lg-3">
-                <img src="{% static "img/mypollingspace.png" %}">
+                <section class="extra">
+                    <img src="{% static "img/mypollingspace.png" %}">
+                </section>
             </div>
         </div>
     </section>
@@ -201,19 +204,20 @@
                             }
 
                             for (var j in candidates) {
-
-                                if (candidates[j].name in chartData) {
-                                    chartData[candidates[j].name]['data'].push(candidates[j].rate);
-                                } else {
-                                    chartData[candidates[j].name] = {
-                                        'name': candidates[j].name,
-                                        'color': candidates[j].color,
-                                        'data': [candidates[j].rate]
+                                if (j < 5) {
+                                    if (candidates[j].name in chartData) {
+                                        chartData[candidates[j].name]['data'].push(candidates[j].rate);
+                                    } else {
+                                        chartData[candidates[j].name] = {
+                                            'name': candidates[j].name,
+                                            'color': candidates[j].color,
+                                            'data': [candidates[j].rate]
+                                        }
                                     }
-                                }
 
-                                if (candidates[j].number == results[ages[i]].top) {
-                                    this.top[ages[i]]['name'] = candidates[j].name;
+                                    if (candidates[j].number == results[ages[i]].top) {
+                                        this.top[ages[i]]['name'] = candidates[j].name;
+                                    }
                                 }
                             }
                         }

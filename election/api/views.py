@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+
 from django_pandas.io import read_frame
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -51,7 +53,7 @@ class SurveyViewSet(viewsets.ModelViewSet):
         if 'type' in get:
             qs = Rating.objects.filter(type=get['type'], survey__is_virtual=False, candidate__is_active=True)
 
-            if 'agency' in get:
+            if 'agency' in get and get['agency'] != '전체':
                 qs = qs.filter(survey__agency__name=get['agency'])
 
             qs = qs.order_by('survey__published')
@@ -62,32 +64,30 @@ class SurveyViewSet(viewsets.ModelViewSet):
                                                 'candidate__color', 'rate', 'target'])
 
                 df.rename(columns=lambda x: x.replace('candidate__', ''), inplace=True)
-                df.sort_values(['survey__published'], inplace=True)
-
                 df['survey__published'] = df['survey__published'].apply(lambda x: x.strftime('%y.%m.%d'))
                 df['unique'] = df['survey__office'] + '/' + df['survey__agency'] + '/' + df['survey__published']
-                print(df)
 
-                df = df.pivot_table(['rate'], index=['survey__published', 'unique', 'target'],
-                                    columns=['name', 'color', 'photo'])
+                df = df.pivot_table(['rate'], index=['target', 'name', 'color', 'photo'],
+                                    columns=['survey__published', 'unique'])
+                df.columns = df.columns.droplevel(level=0)
+                df = df.T
+                # df = df.pivot_table(['rate'], index=['survey__published', 'unique', 'target'],
+                #                     columns=['name', 'color', 'photo'])
 
                 # 설문조사가 비는 부분은 이전 값으로 채우고 나머지 값들은 0으로 채훈다.
                 df = df.fillna(method='ffill').fillna(0)
-                df.columns = df.columns.droplevel(level=0)
-
-                print(df)
 
                 categories = list(df.reset_index()['unique'])
 
                 results = df.to_dict('list')
 
-                modified = []
-                for (name, color, photo), value in results.items():
-                    modified.append({
+                modified = defaultdict(list)
+                for (target, name, color, photo), value in results.items():
+                    modified[target].append({
                         'name': name,
                         'color': color,
                         'photo': photo,
-                        'data': value
+                        'data': [x if x != 0 else None for x in value]
                     })
 
                 return Response({'count': len(categories), 'categories': categories, 'results': modified})
@@ -107,7 +107,7 @@ class SurveyViewSet(viewsets.ModelViewSet):
         if 'virtual' in request.GET:
             qs = qs.filter(is_virtual=request.GET['virtual'])
 
-        return qs.order_by('-published')
+        return qs.order_by('-published', '-office', '-agency')
 
     # Override
     def get_serializer_class(self):

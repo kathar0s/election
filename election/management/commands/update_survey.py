@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 
 from election.models import Candidate
-from sep532.utils import DaumParser, NaverParser
+from sep532.utils import DaumParser, NaverParser, FinalParser, ExitPollParser
 
 
 class Command(BaseCommand):
@@ -12,13 +12,21 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # DAUM과 NAVER에서 설문조사 결과를 가져온다.
-        print('DAUM 여론조사 정보를 가져옵니다.')
-        parser = DaumParser()
+        # print('DAUM 여론조사 정보를 가져옵니다.')
+        # parser = DaumParser()
+        # parser.parse_save()
+        #
+        # print('NAVER 여론조사 정보를 가져옵니다.')
+        # parser = NaverParser()
+        # parser.parse_save()
+
+        print("출구조사 결과를 가져옵니다.")
+        parser = ExitPollParser()
         parser.parse_save()
 
-        print('NAVER 여론조사 정보를 가져옵니다.')
-        parser = NaverParser()
-        parser.parse_save()
+        # print("최종 선거결과를 가져옵니다.")
+        # parser = FinalParser()
+        # parser.parse_save()
 
         self.calibrate_candidate()
 
