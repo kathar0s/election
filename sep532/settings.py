@@ -85,6 +85,7 @@ DATABASES = {
         'NAME': 'sep532',
         'USER': 'kathar0s',
         'PASSWORD': 'guwjdtjr',
+        'HOST': 'sep532.cezcb6sd6q4t.ap-northeast-2.rds.amazonaws.com'
     }
 }
 

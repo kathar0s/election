@@ -2,19 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="db561768-e60a-4ca0-8405-b348bf9689b0" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Untitled.ipynb" afterPath="$PROJECT_DIR$/Untitled.ipynb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/api/views.py" afterPath="$PROJECT_DIR$/election/api/views.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/management/commands/update_survey.py" afterPath="$PROJECT_DIR$/election/management/commands/update_survey.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/static/css/less/libs.less" afterPath="$PROJECT_DIR$/election/static/css/less/libs.less" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/static/css/libs.css" afterPath="$PROJECT_DIR$/election/static/css/libs.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/templates/election/age.html" afterPath="$PROJECT_DIR$/election/templates/election/age.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/templates/election/base.html" afterPath="$PROJECT_DIR$/election/templates/election/base.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/templates/election/gender.html" afterPath="$PROJECT_DIR$/election/templates/election/gender.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/templates/election/index.html" afterPath="$PROJECT_DIR$/election/templates/election/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/election/templates/election/region.html" afterPath="$PROJECT_DIR$/election/templates/election/region.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sep532/settings.py" afterPath="$PROJECT_DIR$/sep532/settings.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sep532/utils.py" afterPath="$PROJECT_DIR$/sep532/utils.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -118,18 +108,18 @@
       <file leaf-file-name="settings.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sep532/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="555">
-              <caret line="83" column="57" lean-forward="false" selection-start-line="83" selection-start-column="38" selection-end-line="83" selection-end-column="57" />
+            <state relative-caret-position="187">
+              <caret line="85" column="24" lean-forward="false" selection-start-line="85" selection-start-column="24" selection-end-line="85" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="utils.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sep532/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
-              <caret line="512" column="35" lean-forward="true" selection-start-line="512" selection-start-column="35" selection-end-line="512" selection-end-column="35" />
+            <state relative-caret-position="155">
+              <caret line="511" column="71" lean-forward="true" selection-start-line="511" selection-start-column="71" selection-end-line="511" selection-end-column="71" />
               <folding>
                 <element signature="e#24#53#0" expanded="true" />
                 <element signature="e#4224#5153#0" expanded="false" />
@@ -141,11 +131,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="update_survey.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="update_survey.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/election/management/commands/update_survey.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="678">
-              <caret line="77" column="30" lean-forward="true" selection-start-line="77" selection-start-column="30" selection-end-line="77" selection-end-column="30" />
+            <state relative-caret-position="189">
+              <caret line="27" column="30" lean-forward="true" selection-start-line="27" selection-start-column="30" selection-end-line="27" selection-end-column="30" />
               <folding>
                 <element signature="e#24#75#0" expanded="true" />
               </folding>
@@ -227,6 +217,12 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--follow-tags" />
+        <option name="title" value="Current Branch" />
+      </GitPushTagMode>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -258,14 +254,14 @@
         <option value="$PROJECT_DIR$/election/views.py" />
         <option value="$PROJECT_DIR$/election/api/views.py" />
         <option value="$PROJECT_DIR$/election/templates/election/index.html" />
-        <option value="$PROJECT_DIR$/sep532/settings.py" />
         <option value="$PROJECT_DIR$/election/templates/election/region.html" />
         <option value="$PROJECT_DIR$/election/templates/election/base.html" />
         <option value="$PROJECT_DIR$/election/static/css/less/libs.less" />
         <option value="$PROJECT_DIR$/election/templates/election/gender.html" />
-        <option value="$PROJECT_DIR$/election/management/commands/update_survey.py" />
         <option value="$PROJECT_DIR$/election/templates/election/age.html" />
         <option value="$PROJECT_DIR$/sep532/utils.py" />
+        <option value="$PROJECT_DIR$/sep532/settings.py" />
+        <option value="$PROJECT_DIR$/election/management/commands/update_survey.py" />
       </list>
     </option>
   </component>
@@ -772,7 +768,14 @@
       <option name="project" value="LOCAL" />
       <updated>1494293024726</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="출구조사, 대선결과 반영">
+      <created>1494459842365</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1494459842366</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView">
@@ -794,14 +797,14 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32963988" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2950638" sideWeight="0.45242214" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32656828" sideWeight="0.49555555" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.103161395" sideWeight="0.6366782" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4951246" sideWeight="0.6366782" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Jenkins" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.14925373" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" x="-1022" y="319" width="670" height="796" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3270925" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="true" show_stripe_button="true" weight="0.2709251" sideWeight="0.72555554" order="8" side_tool="false" content_ui="tabs" x="37" y="483" width="1819" height="536" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.2709251" sideWeight="0.72555554" order="8" side_tool="false" content_ui="tabs" x="37" y="483" width="1819" height="536" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32819384" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
     </layout>
@@ -814,7 +817,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="종합 트렌드 추이까지 완료" />
-    <option name="LAST_COMMIT_MESSAGE" value="종합 트렌드 추이까지 완료" />
+    <MESSAGE value="출구조사, 대선결과 반영" />
+    <option name="LAST_COMMIT_MESSAGE" value="출구조사, 대선결과 반영" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1145,14 +1149,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sep532/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="83" column="57" lean-forward="false" selection-start-line="83" selection-start-column="38" selection-end-line="83" selection-end-column="57" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/election/static/js/highmaps.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1086">
@@ -1223,26 +1219,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/election/management/commands/update_survey.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="678">
-          <caret line="77" column="30" lean-forward="true" selection-start-line="77" selection-start-column="30" selection-end-line="77" selection-end-column="30" />
-          <folding>
-            <element signature="e#24#75#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sep532/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="512" column="35" lean-forward="true" selection-start-line="512" selection-start-column="35" selection-end-line="512" selection-end-column="35" />
+        <state relative-caret-position="155">
+          <caret line="511" column="71" lean-forward="true" selection-start-line="511" selection-start-column="71" selection-end-line="511" selection-end-column="71" />
           <folding>
             <element signature="e#24#53#0" expanded="true" />
             <element signature="e#4224#5153#0" expanded="false" />
             <element signature="e#5182#9648#0" expanded="false" />
             <element signature="e#9682#11831#0" expanded="false" />
             <element signature="e#11866#15370#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sep532/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="85" column="24" lean-forward="false" selection-start-line="85" selection-start-column="24" selection-end-line="85" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/election/management/commands/update_survey.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="27" column="30" lean-forward="true" selection-start-line="27" selection-start-column="30" selection-end-line="27" selection-end-column="30" />
+          <folding>
+            <element signature="e#24#75#0" expanded="true" />
           </folding>
         </state>
       </provider>
