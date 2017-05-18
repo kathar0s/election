@@ -65,3 +65,6 @@ node_modules/
 
 # Django migrations file
 **/migrations/[0-9]*.py
+.gitignore
+static/assets/
+static/libs/
