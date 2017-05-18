@@ -80,10 +80,7 @@ class Command(BaseCommand):
             }, {
                 'name': '김민찬',
                 'party': '무소속'
-            }, {
-                'name': '이재오',
-                'party': '정의당'
-            },
+            }
         ]
 
         Candidate.objects.all().update(is_active=False)
