@@ -1,0 +1,336 @@
+{% extends "election/base.html" %}
+{% load staticfiles %}
+{% block content %}
+    <section class="container">
+        <h2 class="title">대선 지지율(연령별) <small>총 [[ count ]]개의 결과가 있습니다.</small></h2>
+        <trend-component ref="trend" :app="this"></trend-component>
+        <div class="row">
+            <div class="col-md-8 col-lg-9">
+                <survey-chart-component ref="chart" :app="this"></survey-chart-component>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <section class="extra">
+                    <img src="{% static "img/mypollingspace.png" %}">
+                </section>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block component %}
+    {{ block.super }}
+    <script type="text/x-template" id="age-template">
+        <div class="survey">
+            <div class="chart" id="survey-chart"></div>
+            <div class="survey-info">
+                <div class="info">
+                    <span class="press_name">[[ survey.office ]]/[[ survey.agency ]]</span>
+                    <span class="grp_date">[[ survey.published ]]</span>
+                </div>
+                <p>[[ survey.description ]]</p>
+                <span class="source">출처: [[ survey.source ]]</span>
+            </div>
+            <div class="paginator text-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-lg">
+                        <li :class="{'disabled': !pagination.hasPrevious}">
+                            <a href="#" aria-label="Previous" @click.prevent="show(current - 1)">
+                                <span aria-hidden="true">이전</span>
+                            </a>
+                        </li>
+                        <li v-for="page in pagination.pageRange" :class="{ 'active': page == current }"
+                            @click.prevent="show(page)">
+                            <a href="#">[[ page ]]</a>
+                        </li>
+                        <li :class="{'disabled': !pagination.hasNext}">
+                            <a href="#" aria-label="Next" @click.prevent="show(current + 1)">
+                                <span aria-hidden="true">다음</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </script>
+{% endblock %}
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "js/highcharts.js" %}"></script>
+    <script>
+        Vue.component('survey-chart-component', {
+            template: '#age-template',
+            props: ['app'],
+            delimiters:['[[', ']]'],
+            data: function () {
+                return {
+                    surveyList: [
+                        {
+                            agency: "리서치뷰",
+                            candidates: [
+                                {
+                                    candidate: {
+                                        name: '',
+                                        photo: '',
+                                    },
+                                    rate: 0
+                                },
+                                {
+                                    candidate: {
+                                        name: '',
+                                        photo: '',
+                                    },
+                                    rate: 0
+                                }
+                            ],
+                            description: "전국 만 19세 이상 남녀 2,053명/ARS 휴대전화 임의번호걸기 (RDD) 방식·무선100%/전체 응답률 9.7%/95% 신뢰수준에 ±2.2%p",
+                            isVirtual: false,
+                            link: "http://news.naver.com/main/election/president2017/news/read.nhn?mode=LSD&sid1=154&oid=002&aid=0002030697",
+                            name: "[프레시안/리서치뷰] 17.05.04 여론조사",
+                            office: "프레시안",
+                            published: "2017-05-04",
+                            source: "naver",
+                            rate: 0
+                        }
+                    ],
+                    chart: null,
+                    perPage: 5,
+                    current: 1,
+                    count: 0,
+                    ages: null,
+                    top: {}
+                }
+            },
+            watch: {
+                current: function (newVal) {
+                    var that = this;
+                    var page = Math.ceil((newVal + 1) / this.perPage);
+                    if (newVal + 1 > this.surveyList.length) {
+                        axios.get('/api/survey/', {
+                            params: {
+                                type: 'age',
+                                limit: this.perPage,
+                                page: page
+                            }
+                        })
+                        .then(function (response) {
+                            that.surveyList = that.surveyList.concat(response.data.results);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                    }
+
+                    this.chartUpdate();
+                }
+            },
+            computed: {
+                survey: function () {
+                    var surveyData = this.surveyList[this.current - 1];
+
+                    return surveyData;
+                },
+                candidates: function () {
+                    if (this.survey && this.survey.results && this.target in this.survey.results) {
+                        return this.survey.results[this.target].candidates;
+                    } else {
+                        return []
+                    }
+                },
+                pagination: function() {
+                    var count = this.count;                                     // 전체 아이템 개수
+                    var numPages = Math.ceil(this.count / this.perPage);        // 전체 페이지 개수
+                    var lastIndex = 0;
+                    var startIndex = 0;
+                    var pageRange = [];
+                    var number = this.current;
+
+                    startIndex = this.current - Math.floor(this.perPage / 2);
+                    lastIndex = startIndex + this.perPage;
+
+                    lastIndex = lastIndex > count + 1 ? count + 1: lastIndex;
+
+                    if (this.current < Math.ceil(this.perPage / 2)) {
+                        startIndex = 1
+                        lastIndex = 1 + this.perPage;
+                    } else if (this.current > count - Math.ceil(this.perPage / 2)) {
+                        lastIndex = count + 1;
+                        startIndex = lastIndex - this.perPage;
+                    }
+                    pageRange = _.range(startIndex, lastIndex);                             // 페이지 범위
+
+                    var hasNext = this.current + 1 > count ? false: true;
+                    var hasPrevious = this.current - 1 < 1 ? false: true;
+
+                    return {
+                        number: number,
+                        count: count,
+                        numPages: numPages,
+                        pageRange: pageRange,
+                        hasPrevious: hasPrevious,
+                        hasNext: hasNext,
+                    }
+                }
+            },
+            methods: {
+                show: function (page) {
+                    if (page < 1) {
+                        page = 1;
+                    }
+
+                    if (page > this.pagination.count) {
+                        page = this.pagination.count;
+                    }
+
+                    this.current = page;
+                },
+                calibrateRate: function(rate, rate_versus) {
+                    var total = rate + rate_versus;
+                    return _.floor(rate / total * 100, 2) + '%';
+                },
+                chartUpdate: function () {
+                    // 차트 내용 변경
+                    var chartData = {};
+                    var ages = [];
+                    var results = null;
+                    var candidates = null;
+
+                    if (this.survey && this.survey.results) {
+                        results = this.survey.results;
+                        ages = _.sortBy(Object.keys(results));
+                        this.ages = ages;
+                        for (var i in ages) {
+                            candidates = _.sortBy(results[ages[i]].candidates, ['number']);
+                            this.top[ages[i]] = {
+                                'number': results[ages[i]].top
+                            }
+
+                            for (var j in candidates) {
+                                if (j < 5) {
+                                    if (candidates[j].name in chartData) {
+                                        chartData[candidates[j].name]['data'].push(candidates[j].rate);
+                                    } else {
+                                        chartData[candidates[j].name] = {
+                                            'name': candidates[j].name,
+                                            'color': candidates[j].color,
+                                            'data': [candidates[j].rate]
+                                        }
+                                    }
+
+                                    if (candidates[j].number == results[ages[i]].top) {
+                                        this.top[ages[i]]['name'] = candidates[j].name;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (this.chart) {
+                        while (this.chart.series.length > 0) {
+                            this.chart.series[0].remove(false);
+                        }
+
+                        for (var i in chartData) {
+                            this.chart.addSeries(chartData[i], false);
+                        }
+                        this.chart.redraw();
+                    }
+                },
+                initChart: function () {
+                    var that = this;
+
+                    // Create the chart
+                    this.chart = Highcharts.chart('survey-chart', {
+                        chart: {
+                            type: 'bar',
+                            height: 350,
+                            spacingRight: 30,
+                            marginRight: 130
+                        },
+                        title: {
+                            text: null
+                        },
+                        xAxis: {
+                            categories: ['20대', '30대', '40대', '50대', '60세이상'],
+                            lineWidth: 0,
+                            tickLength: 0,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            max: 100,
+                            gridLineColor: '#FFF',
+                            title: {
+                                text: '지지율 (%)',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        tooltip: {
+                            valueSuffix: ' %'
+                        },
+                        plotOptions: {
+                            series: {
+                                stacking: 'normal'
+                            },
+                            bar: {
+                                pointWidth: 30,
+                                pointPadding: 20,
+                                dataLabels: {
+                                    enabled: true,
+                                    formatter: function () {
+                                        var isMax = (that.top[this.x].name == this.series.name) ? true : false;
+
+                                        if (isMax) {
+                                            return '[' + this.y + ']';
+                                        } else {
+                                            return this.y;
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        legend: {
+                            layout: 'vertical',
+                            align: 'right',
+                            verticalAlign: 'top',
+                            x: 0,
+                            y: 0,
+                            floating: true,
+                            borderWidth: 1,
+                            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                            shadow: true
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: []
+                    });
+                }
+            },
+            created: function () {
+                var that = this;
+                axios.get('/api/survey/', {
+                        params: {
+                            type: 'age',
+                            limit: this.perPage
+                        }
+                    })
+                    .then(function (response) {
+                        that.surveyList = response.data.results;
+                        that.count = response.data.count;
+                        that.app.count = that.count;
+                        that.chartUpdate();
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            mounted: function () {
+                this.initChart();
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}제19대 대통령선거 - 여론조사 및 선거결과{% endblock %}
+{% block stylesheet %}
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+    <link rel="stylesheet" href="{% static "css/libs.css" %}">
+{% endblock %}
+{% block header %}
+    {% include "election/header.html" %}
+{% endblock %}
+{% block content %}
+{% endblock %}
+{% block component %}
+    <script type="text/x-template" id="header-template">
+        <header class="middle-header" id="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-8 col-sm-5 logo">
+                        <h1>
+                            <img src="{% static "img/vote.png" %}">
+                            제19대 대통령선거
+                            <small>여론조사 및 최종결과</small>
+                        </h1>
+                    </div>
+                    <div class="col-xs-4 col-sm-7">
+                        <div class="nav navbar-right election-info">
+                            <div class="date hidden-xs">
+                                <div>선거일</div>
+                                <div>2017.05.09</div>
+                            </div>
+                            <h2 class="d-day">D[[ dayLeft ]]</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </script>
+    <script type="text/x-template" id="navbar-template">
+        <nav class="navbar navbar-default shadow-navbar" role="navigation" id="navbar">
+            <div class="container">
+                <div class="row">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-ex1-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <div class="btn-group select-agency visible-xs" role="group" aria-label="...">
+                            <button type="button" class="btn btn-default">[[ selectedAgency ]]</button>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    조사기관별
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li v-for="agency in agencyList" @click="selectAgency(agency)"><a href="#">[[ agency.name ]]</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse navbar-collapse" id="navbar-ex1-collapse">
+                        <ul class="nav navbar-nav">
+                            <li {% if request.path == '/' %}class="active"{% endif %}><a :href="'{% url "index" %}' + trendParams">종합</a></li>
+                            <li {% if 'region' in request.path %}class="active"{% endif %}><a :href="'{% url "region" %}' + trendParams">지역별</a></li>
+                            <li {% if 'age' in request.path %}class="active"{% endif %}><a :href="'{% url "age" %}' + trendParams">연령별</a></li>
+                            <li {% if 'gender' in request.path %}class="active"{% endif %}><a :href="'{% url "gender" %}' + trendParams">성별</a></li>
+                        </ul>
+                        <div class="nav navbar-right hidden-xs">
+                            <div class="btn-group select-agency" role="group" aria-label="...">
+                                <label class="trend-check"><input type="checkbox" v-model="isTrend"> 트렌드 분석</label>
+                                <button type="button" class="btn btn-default">[[ selectedAgency ]]</button>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        조사기관별
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li v-for="agency in agencyList" @click="selectAgency(agency)"><a href="#">[[ agency.name ]]</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </script>
+    <script type="text/x-template" id="trend-template">
+        <div class="trend" v-show="app.$refs.navbar.isTrend">
+            <select v-model="selectedTarget">
+                <option v-for="target in targets">[[ target ]]</option>
+            </select>
+            <div id="chart-trend"></div>
+            <div class="no-data" :class="{'hide': series.length }">
+                해당 데이터가 없습니다.
+            </div>
+        </div>
+    </script>
+{% endblock %}
+{% block javascript %}
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.url.parser/2.3.1/purl.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.10/webfont.js"></script>
+    <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/axios/0.16.1/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/2.18.1/moment-with-locales.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script type="text/javascript">
+        WebFont.load({
+            // For early access or custom font
+            custom: {
+                families: ['Nanum Gothic'],
+                urls: ['http://fonts.googleapis.com/earlyaccess/nanumgothic.css']
+            }
+        });
+        Vue.component('header-component', {
+            template: '#header-template',
+            props: ['app'],
+            delimiters:['[[', ']]'],
+            computed: {
+                dayLeft: function () {
+                    var election_date = moment('2017-05-09');
+                    var today = moment();
+
+                    var dayleft = Math.ceil(election_date.diff(today, 'days', true));
+
+                    if (dayleft == 0) {
+                        return '-day';
+                    } else {
+                        return (dayleft < 0) ? '+' + -dayleft : -dayleft;
+                    }
+                }
+            },
+        });
+        Vue.component('navbar-component', {
+            template: '#navbar-template',
+            props: ['app'],
+            delimiters:['[[', ']]'],
+            data: function () {
+                return {
+                    isTrend: false,
+                    agencyList: [{name: '전체'}],
+                    selectedAgency: '전체'
+                }
+            },
+            computed: {
+                trendParams: function () {
+                    var params = ''
+                    if (this.isTrend) {
+                        params = '?trend=true';
+                        if (this.selectedAgency != '전체') {
+                            params += ('&agency=' + this.selectedAgency);
+                        }
+
+                        return params;
+
+                    } else {
+                        return ''
+                    }
+                }
+            },
+            mounted: function () {
+                var that = this;
+                var isTrend = $.url().param('trend');
+                var selectedAgency = $.url().param('agency');
+
+                if (isTrend == 'true') {
+                    this.isTrend = true;
+                }
+
+                if (typeof selectedAgency == 'string') {
+                    this.selectedAgency = selectedAgency;
+                }
+
+                axios.get('/api/agency/')
+                .then(function (response) {
+                    that.agencyList = that.agencyList.concat(response.data);
+                })
+                .catch(function (error) {
+                    console.log('error');
+                });
+            },
+            watch: {
+                selectedAgency: function (newVal) {
+                    this.app.$refs.trend.getData(newVal);
+                    this.app.$refs.navbar.isTrend = true;
+                }
+            },
+            methods: {
+                selectAgency: function (agency) {
+                    this.selectedAgency = agency.name;
+                }
+            }
+        });
+        Vue.component('trend-component', {
+            template: '#trend-template',
+            props: ['app'],
+            delimiters:['[[', ']]'],
+            data: function () {
+                return {
+                    categories: [],
+                    series: [],
+                    chart: null,
+                    targets: [],
+                    selectedTarget: '서울'
+                }
+            },
+            watch: {
+                selectedTarget: function(newVal) {
+                    this.getData(this.app.$refs.navbar.selectedAgency);
+                    if (this.app.$refs.region) {
+                        this.app.$refs.region.target = newVal;
+                    }
+                }
+            },
+            methods: {
+                getData: function (agency) {
+                    var that = this;
+                    var agency = agency || $.url().param('agency');
+                    var default_params = {
+                        type: '{{ category }}'
+                    };
+
+                    if (typeof agency != 'undefined') {
+                        default_params['agency'] = agency;
+                    }
+                    axios.get('/api/survey/trend/', {
+                        params: default_params
+                    })
+                    .then(function (response) {
+                        var results = response.data.results;
+                        that.categories = response.data.categories;
+                        that.targets = _.sortBy(Object.keys(results));
+
+                        if (that.selectedTarget in results) {
+                            that.series = results[that.selectedTarget];
+                        } else {
+                            that.selectedTarget = that.targets[0];
+                            that.series = [];
+                        }
+                        that.updateChart();
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                },
+                updateChart: function () {
+                    var data = [];
+                    var newCategories = [];
+                    if (this.chart) {
+
+                        while (this.chart.series.length > 0) {
+                            this.chart.series[0].remove(false);
+                        }
+
+{#                        for (var i in this.categories) {#}
+{#                            newCategories.push(this.categories[i]);#}
+{#                        }#}
+
+                        this.chart.xAxis[0].setCategories(this.categories);
+                        for (var i in this.series) {
+
+                            data = this.series[i]['data'];
+                            data[0] = {
+                                y: data[0],
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+
+                            data[data.length-1] = {
+                                y: data[data.length-1],
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                            this.chart.addSeries(this.series[i], false);
+                        }
+                        this.chart.redraw();
+                    }
+                },
+                initChart: function () {
+                    var that = this;
+
+                    // Create the chart
+                    this.chart = Highcharts.chart('chart-trend', {
+                        chart: {
+                            type: 'line',
+                            height: 500
+                        },
+                        title: {
+                            text: null
+                        },
+                        xAxis: {
+                            labels: {
+                                y: 40,
+                                style: {
+                                    fontSize: 12,
+                                    fontFamily: 'Nanum Gothic'
+                                },
+                                formatter: function () {
+                                    var label = this.axis.defaultLabelFormatter.call(this);
+                                    return label.split('/')[2].replace('17.', '');
+                                }
+                            },
+                            showLastLabel: true,
+                            lineWidth: 0,
+                            tickLength: 0,
+                            title: {
+                                text: null
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            max: 65,
+                            gridLineColor: '#FFF',
+                            title: {
+                                text: null
+                            },
+                            labels: {
+                                enabled: false,
+                                overflow: 'justify'
+                            }
+                        },
+                        plotOptions: {
+                            series: {
+                                connectNulls: true,
+                                marker: {
+                                    enabled: false
+                                }
+                            },
+                            line: {
+                                dataLabels: {
+                                    format: '{y}%',
+                                    enabled: false
+                                },
+                                lineWidth: 3
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+{#                            formatter: function () {#}
+{#                                return this.y;#}
+{#                                debugger;#}
+{#                            },#}
+                            valueSuffix: ' %'
+                        },
+                        legend: {
+                            enabled: true
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: []
+                    });
+                }
+            },
+            mounted: function () {
+                this.initChart();
+            },
+            created: function () {
+                this.getData();
+            }
+        });
+    </script>
+{% endblock %}
+{% block finalscript %}
+<script>
+    var vm = new Vue({
+        el: '#app',
+        delimiters:['[[', ']]'],
+        data: {
+            count: 0
+        }
+    });
+</script>
+{% endblock %}

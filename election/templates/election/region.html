@@ -1,0 +1,366 @@
+{% extends "election/base.html" %}
+{% load staticfiles %}
+{% block content %}
+    <section class="container">
+        <h2 class="title">대선 지지율(지역별) <small>총 [[ count ]]개의 결과가 있습니다.</small></h2>
+        <trend-component ref="trend" :app="this"></trend-component>
+        <div class="row">
+            <div class="col-md-8 col-lg-9">
+                <region-component ref="region" :app="this"></region-component>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <section class="extra">
+                    <img src="{% static "img/mypollingspace.png" %}">
+                </section>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block component %}
+    {{ block.super }}
+    <script type="text/x-template" id="region-template">
+        <div class="">
+            <div class="region">
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div id="map"></div>
+                    </div>
+                    <div class="col-lg-5">
+                        <section class="map-detail">
+                            <div class="title">
+                                후보별 지지율 ([[ target ]])
+                            </div>
+                            <div class="media candidate"  v-for="(candidate, index) in candidates" v-if="index <= 1">
+                                <div class="media-left">
+                                    <div class="photo" :style="{backgroundImage: 'url(' + candidate.photo +')'}"></div>
+                                </div>
+                                <div class="media-body">
+                                    <div class="progress">
+                                        <div class="progress-bar" :style="{width: candidate.rate + '%', backgroundColor: candidate.color}">
+                                            <span class="sr-only">[[ candidate.rate ]]% Complete</span>
+                                        </div>
+                                        <div class="rate">[[ candidate.rate ]]%</div>
+                                    </div>
+                                    <div class="name">
+                                        [[ candidate.name ]]
+                                    </div>
+                                    <div class="info">
+                                        [[ index + 1]]위 | [[ candidate.party ]] | 기호[[ candidate.number ]]번
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="divider">
+                            <div class="media candidate candidate-sub" v-for="(candidate, index) in candidates" v-if="index > 1">
+                                <div class="media-left">
+                                    <div class="photo" :style="{backgroundImage: 'url(' + candidate.photo +')'}"></div>
+                                </div>
+                                <div class="media-body">
+                                    <div class="progress">
+                                        <div class="progress-bar" :style="{width: candidate.rate + '%', backgroundColor: candidate.color}">
+                                            <span class="sr-only">[[ candidate.rate ]]% Complete</span>
+                                        </div>
+                                        <div class="rate">[[ candidate.rate ]]%</div>
+                                    </div>
+                                    <div class="info">
+                                        [[ index + 1 ]]위 | [[ candidate.name ]] | [[ candidate.party ]] | 기호[[ candidate.number ]]번
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="survey-info">
+                <div class="info">
+                    <span class="press_name">[[ survey.office ]]/[[ survey.agency ]]</span>
+                    <span class="grp_date">[[ survey.published ]]</span>
+                </div>
+                <p>[[ survey.description ]]</p>
+                <span class="source">출처: [[ survey.source ]]</span>
+            </div>
+            <div class="paginator text-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-lg">
+                        <li :class="{'disabled': !pagination.hasPrevious}">
+                            <a href="#" aria-label="Previous" @click.prevent="show(current - 1)">
+                                <span aria-hidden="true">이전</span>
+                            </a>
+                        </li>
+                        <li v-for="page in pagination.pageRange" :class="{ 'active': page == current }"
+                            @click.prevent="show(page)">
+                            <a href="#">[[ page ]]</a>
+                        </li>
+                        <li :class="{'disabled': !pagination.hasNext}">
+                            <a href="#" aria-label="Next" @click.prevent="show(current + 1)">
+                                <span aria-hidden="true">다음</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </script>
+{% endblock %}
+{% block javascript %}
+    {{ block.super }}
+    <script src="{% static "js/highmaps.js" %}"></script>
+    <script src="{% static "js/kr-all.js" %}"></script>
+    <script>
+        Vue.component('region-component', {
+            template: '#region-template',
+            props: ['app'],
+            delimiters:['[[', ']]'],
+            data: function () {
+                return {
+                    surveyList: [
+                        {
+                            agency: "여론조사기관",
+                            candidates: [
+                                {
+                                    candidate: {
+                                        name: '',
+                                        photo: '',
+                                    },
+                                    rate: 0
+                                },
+                                {
+                                    candidate: {
+                                        name: '',
+                                        photo: '',
+                                    },
+                                    rate: 0
+                                }
+                            ],
+                            description: "여론조사 정보",
+                            isVirtual: false,
+                            link: "http://news.naver.com/main/election/president2017/news/read.nhn?mode=LSD&sid1=154&oid=002&aid=0002030697",
+                            name: "여론조사명",
+                            office: "여론조사 의뢰기관",
+                            published: "2017-05-04",
+                            source: "naver",
+                            rate: 0
+                        }
+                    ],
+                    map: null,
+                    regions: null,
+                    perPage: 5,
+                    current: 1,
+                    count: 0,
+                    target: '서울'
+                }
+            },
+            watch: {
+                current: function (newVal) {
+                    var that = this;
+                    var page = Math.ceil((newVal + 1) / this.perPage);
+                    if (newVal + 1 > this.surveyList.length) {
+                        axios.get('/api/survey/', {
+                            params: {
+                                type: 'region',
+                                limit: this.perPage,
+                                page: page
+                            }
+                        })
+                        .then(function (response) {
+                            that.surveyList = that.surveyList.concat(response.data.results);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                    }
+                }
+            },
+            computed: {
+                survey: function () {
+                    var surveyData = this.surveyList[this.current - 1];
+                    var mapData = [];
+                    var regions = [];
+                    var default_region = '';
+
+                    if (surveyData && surveyData.results) {
+                        regions = Object.keys(surveyData.results);
+                        this.regions = regions;
+                        for (var i in regions) {
+                            if (regions[i] == '충청' || regions[i] == '충정') {
+                                mapData.push(['충남', surveyData.results[regions[i]]['top']]);
+                                mapData.push(['충북', surveyData.results[regions[i]]['top']]);
+                            } else if (regions[i] == '전라' || regions[i] == '호남') {
+                                mapData.push(['전남', surveyData.results[regions[i]]['top']]);
+                                mapData.push(['전북', surveyData.results[regions[i]]['top']]);
+                            } else {
+                                mapData.push([regions[i], surveyData.results[regions[i]]['top']])
+                            }
+                        }
+                        if (regions.indexOf('서울') != -1) {
+                            default_region = regions[regions.indexOf('서울')];
+                        } else {
+                            default_region = regions[0];
+                        }
+                    }
+                    if (this.map) {
+                        this.map.series[0].setData(mapData);
+                    }
+                    this.target = default_region;
+                    return surveyData;
+                },
+                candidates: function () {
+                    if (this.survey && this.survey.results && this.target in this.survey.results) {
+                        return this.survey.results[this.target].candidates;
+                    } else {
+                        return []
+                    }
+                },
+                pagination: function() {
+                    var count = this.count;                                     // 전체 아이템 개수
+                    var numPages = Math.ceil(this.count / this.perPage);        // 전체 페이지 개수
+                    var lastIndex = 0;
+                    var startIndex = 0;
+                    var pageRange = [];
+                    var number = this.current;
+
+                    startIndex = this.current - Math.floor(this.perPage / 2);
+                    lastIndex = startIndex + this.perPage;
+
+                    lastIndex = lastIndex > count + 1 ? count + 1: lastIndex;
+
+                    if (this.current < Math.ceil(this.perPage / 2)) {
+                        startIndex = 1
+                        lastIndex = 1 + this.perPage;
+                    } else if (this.current > count - Math.ceil(this.perPage / 2)) {
+                        lastIndex = count + 1;
+                        startIndex = lastIndex - this.perPage;
+                    }
+                    pageRange = _.range(startIndex, lastIndex);                             // 페이지 범위
+
+                    var hasNext = this.current + 1 > count ? false: true;
+                    var hasPrevious = this.current - 1 < 1 ? false: true;
+
+                    return {
+                        number: number,
+                        count: count,
+                        numPages: numPages,
+                        pageRange: pageRange,
+                        hasPrevious: hasPrevious,
+                        hasNext: hasNext,
+                    }
+                }
+            },
+            methods: {
+                show: function (page) {
+                    if (page < 1) {
+                        page = 1;
+                    }
+
+                    if (page > this.pagination.count) {
+                        page = this.pagination.count;
+                    }
+
+                    this.current = page;
+                },
+                calibrateRate: function(rate, rate_versus) {
+                    var total = rate + rate_versus;
+                    return _.floor(rate / total * 100, 2) + '%';
+                },
+                initMap: function () {
+                    var that = this;
+
+                    // Create the chart
+                    this.map = Highcharts.mapChart('map', {
+                        chart: {
+                            margin: [0, 20, 80, 20],
+                            spacingTop: 0,
+                            spacingBottom: 20,
+                            height: 620
+                        },
+
+                        title: {
+                            text: null
+                        },
+
+                        tooltip: {
+                            enabled: false
+                        },
+
+                        colorAxis: {
+                            dataClasses: [{
+                                from: 1,
+                                to: 2,
+                                color: '#0362c1',
+                                name: '더불어민주당'
+                            }, {
+                                from: 2,
+                                to: 3,
+                                color: '#d5141d',
+                                name: '자유한국당'
+                            }, {
+                                from: 3,
+                                to: 4,
+                                color: '#046240',
+                                name: '국민의당'
+                            }, {
+                                from: 4,
+                                to: 5,
+                                color: '#00b1eb',
+                                name: '바른정당',
+                            }, {
+                                from: 5,
+                                to: 6,
+                                color: '#f0a001',
+                                name: '정의당',
+                            }]
+                        },
+
+                        plotOptions: {
+                            series: {
+                                cursor: 'pointer',
+                                events: {
+                                    click: function (e) {
+                                        var region = e.point.name;
+                                        if (region == '충남' || region == '충북') {
+                                            region = (that.regions.indexOf(region) != -1) ? region : '충청';
+                                            region = (that.regions.indexOf(region) != -1) ? region : '충정';
+                                        } else if (region == '전남' || region == '전북') {
+                                            region = (that.regions.indexOf(region) != -1) ? region : '전라';
+                                            region = (that.regions.indexOf(region) != -1) ? region : '호남';
+                                        }
+                                        that.target = region;
+                                    }
+                                }
+                            }
+                        },
+
+                        series: [{
+                            mapData: Highcharts.maps['countries/kr/kr-all'],
+                            name: '지역별 1위',
+                            joinBy: ['name', 'hc-key'],
+                            dataLabels: {
+                                enabled: false,
+                                format: '{point.name}'
+                            }
+                        }]
+                    });
+                }
+            },
+            created: function () {
+                var that = this;
+                axios.get('/api/survey/', {
+                        params: {
+                            type: 'region',
+                            limit: this.perPage
+                        }
+                    })
+                    .then(function (response) {
+                        that.surveyList = response.data.results;
+                        that.count = response.data.count;
+                        that.app.count = that.count;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            mounted: function () {
+                this.initMap();
+            }
+        });
+    </script>
+{% endblock %}

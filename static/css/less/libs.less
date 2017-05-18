@@ -1,0 +1,255 @@
+body {
+  font-family: "Nanum Gothic";
+}
+.middle-header {
+  box-shadow: 0 0 1px rgba(0,0,0,0.25);
+  transition: background-color 0.3s ease-in-out;
+  padding: 15px 0;
+
+  h1, h2 {
+    margin: 0;
+  }
+  .logo {
+    img {
+      width: 48px;
+      vertical-align: top;
+      display: block;
+      float: left;
+      margin-right: 10px;
+    }
+    h1 {
+      font-weight: bold;
+      font-size: 26px;
+    }
+    small {
+      display: block;
+      line-height: 24px;
+    }
+  }
+
+  .navbar-right {
+    text-align: right;
+    margin-top: 5px;
+  }
+
+  .election-info {
+    margin: 0;
+    .date {
+      float:right;
+      margin: 4px 0 0 10px;
+      text-align:left;
+    }
+    .d-day {
+      float:right;
+      font-size:43px;
+    }
+  }
+}
+
+.navbar-default {
+  .navbar-toggle {
+    float: left;
+    margin-left: 15px;
+  }
+}
+
+.navbar {
+  .select-agency {
+    float: right;
+    padding: 8px;
+  }
+}
+
+.navbar-collapse {
+  .select-agency {
+    padding: 8px 15px 8px 0;
+  }
+}
+
+section {
+  .title {
+    margin-top: 0;
+  }
+}
+
+.balance-of-power {
+  margin-top: 2rem;
+  .text {
+    position: relative;
+    margin: 2rem 8.5rem 0;
+    .candidate {
+      top: 0rem;
+      line-height: 1;
+
+      .name {
+        vertical-align: bottom;
+        font-size: 1.7rem;
+        line-height: 1.7;
+        font-weight: 700;
+      }
+
+      .percent {
+        line-height: 1.1;
+        font-size: 3.5rem;
+        color: #404040;
+        vertical-align: top;
+        white-space: nowrap;
+        font-weight: 700;
+      }
+    }
+    .candidate-left {
+      position: relative;
+    }
+    .candidate-right {
+      position: absolute;
+      right: 0;
+    }
+  }
+
+  .visual {
+    position: relative;
+    .progress {
+      margin: 5px 40px;
+    }
+    .candidate {
+      .photo {
+        position: absolute;
+        bottom: -2px;
+        width: 80px;
+        height: 80px;
+        background: #999;
+        border-radius: 40px;
+        border: 3px solid #FFF;
+        &.headshot-left {
+          left: 0;
+        }
+        &.headshot-right {
+          right: 0;
+        }
+        .label-default {
+          background: #000;
+        }
+      }
+    }
+    .progress-bar {
+      transition: all .6s ease;
+    }
+  }
+
+  .candidate-info {
+    margin: 0 0.5rem;
+    position: relative;
+    .party-number {
+      bottom: 0;
+      &.left {
+        position: relative;
+        left: 0
+      }
+
+      &.right {
+        position: absolute;
+        right: 0;
+      }
+
+      .party {
+        font-weight: 700;
+      }
+
+      .number {
+        color: #a6a6a6;
+      }
+
+    }
+  }
+}
+
+.rest-balance {
+  margin-top: 2rem;
+  .candidate {
+    font-size: 1.5rem;
+    .photo {
+      background: #999;
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+    }
+    .name {
+      font-weight: 700;
+    }
+    .order {
+      font-size: 1.5rem;
+    }
+    .party {
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+    .number {
+      font-size: 1.4rem;
+      color: #a6a6a6;
+    }
+  }
+  .table {
+    thead {
+      th {
+        font-size: 1.2rem;
+      }
+    }
+    tbody {
+      > tr {
+        > td {
+          padding: 20px 5px;
+        }
+      }
+    }
+  }
+  .rate-bar {
+    .progress {
+      margin: 1.5rem 0 0;
+    }
+    .limit {
+      font-size: 10px;
+    }
+  }
+  .rate {
+    margin-top: 1.4rem;
+  }
+}
+
+.candidate {
+  .photo {
+    background: #EEE url(http://imgnews.naver.net/image/upload/item/2017/04/11/231318113_66x80_no.png) no-repeat center 1.2rem !important;
+    background-size: 70% !important;
+  }
+}
+
+.survey-info {
+  padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #eee;
+    border-left-width: 5px;
+    border-radius: 3px;
+  .info {
+    .press_name {
+      padding-right: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #909194;
+      line-height: 22px;
+      letter-spacing: -1px;
+      vertical-align: top;
+    }
+    .grp_date {
+      font-size: 13px;
+      color: #888;
+      font-family: tahoma,helvetica,sans-serif;
+      line-height: 23px;
+      letter-spacing: 0;
+      vertical-align: top;
+    }
+  }
+  p {
+    font-size: 12px;
+    line-height: 20px;
+    color: #888;
+  }
+}
